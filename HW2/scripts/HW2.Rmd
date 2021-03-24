@@ -1,0 +1,246 @@
+---
+title: "Homework 2"
+author: "Adon Rosen"
+date: "3/11/2021"
+output: pdf_document
+---
+
+```{r, echo=F, message=F, warning=FALSE}
+library(knitr)
+opts_knit$set(root.dir='./')  #Don't combine this call with any other chunk -especially one that uses file paths.
+```
+
+
+<!-- Set the report-wide options, and point to the external code file. -->
+```{r set_options, echo=F, warning=FALSE}
+# cat("Working directory: ", getwd())
+report_render_start_time <- Sys.time()
+opts_chunk$set(
+  results    = 'show',
+  comment    = NA,
+  tidy       = FALSE,
+  fig.width  = 10,
+  fig.height = 6,
+  fig.path   = 'figure-png/'
+)
+# echoChunks <- FALSE
+options(width=80) #So the output is 50% wider than the default.
+read_chunk("./HW2.R") #This allows knitr to call chunks tagged in the underlying *.R file.
+```
+
+```{r load-packages, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+```{r load-data, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+# Question 1
+
+## Part 1
+```{r q-1-a, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+## Part 2
+A table with the mean, standard deviation, standard error and the 95% confidence interval for the intercept and slopes can be found below
+
+```{r q-1-b, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+## Part 3
+There appears to be considerable variation in both the intercept as well as the slope when relating the neighborhood support to alcuse within and between schools. This makes these data a good candidate for a mixed effects model given the fact that the schools represent a large normally distributed population and we have a subsample of this population, furthermore, every individual in the data set belongs to a single school.
+
+# Question 2
+
+
+## Part 1
+The fitted model is:
+
+$Y_{ij}=\beta_{0j} + r_{ij}$
+
+Where:
+
+$Y_{ij}$ is the predicted value alcohol use for individual j from school i
+
+$\beta_0i$ is the school specific effect
+
+$r_{ij}$ is the individual specific random deviation
+
+The school specific model is fitted as:
+
+$\beta_0j = \gamma_{00} + u_{0j}$
+
+$\gamma_{00}$ is the grand mean
+
+$u_{0j}$ is the random deviation of school j from the grand mean
+
+The code to fit the model is: lme4::lmer(alcuse ~ (1|schnum), data=in.dat)
+
+## Part 2
+```{r q-2-a, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The fixed effects for this model include the grand mean of alcohol use across all schools and the value is:
+```{r q-2-b-1, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+This value suggests that the average alcohol use across all schools lays between 1-2 times in the past year, and 3-5 times in the last year, although considerably closer to the latter.
+
+
+The random effects include the school specific alcohol use and the values are:
+```{r q-2-b-2, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+These random intercepts reflect the deviation from the grand mean within each of the schools. The values range from `r round(min(ranef(mod.one)$schnum),2)` to `r round(max(ranef(mod.one)$schnum),2)` with a varaiance of `r round(get_variance_random(mod.one),2)`. indicating that some schools are on average more than half of a point lower then the grand mean, and other schools are on average about half of a point higher in alcohol use.
+
+## Part 3
+```{r q-2-c, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+The ICC of alcohol use of schools is: `r round(ICC.value, 2)`. This value reflects the amount of variation explained by group membership.
+
+The design effect reflects the amount of correction that needs to be provided to estimate more accurate standard error estimates. It reflects the impact to the statistic estimation that is impacted by larger ICC values. That is, as ICC values increase, the standard error estimates are are reduced to a greater extent.
+
+The design effect is estimated by: 
+
+$1 + (n-1)\rho$ where:
+
+$n$ is the average group sample size
+
+$\rho$ is the intraclass correlation
+
+The design effect for these data is: $1 + (n-1)*\rho$ = $1 + (81.53571-1) * 0.02$ = `r round(1 + (81.53571-1) * ICC.value , 2)`
+
+Given the magnitude of the design effect, and prior rule suggestions, this is adequate justification for the use of HLM as opposed to OLS.
+
+# Question 3
+
+## Part 1
+```{r q-3-a, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The fitted model is:
+
+$Y_{ij}=\beta_{0j} + \beta_{1j}*neighborhood Support + r_{ij}$
+
+Where:
+
+$Y_{ij}$ is the predicted value alcohol use for individual j from school i
+
+$\beta_0i$ is the school specific effect
+
+$r_{ij}$ is the individual specific random deviation
+
+The school specific model is fitted as:
+
+$\beta_0j = \gamma_{00} + u_{0j}$
+
+$\beta_{1j} = \gamma_{10} + u_{1j}$
+
+$\gamma_{00}$ is the grand mean
+
+$u_{0j}$ is the random deviation of school j from the grand mean
+
+$\gamma_{10}$ is the covariance between the slope and the intercept
+
+$u_{1j}$ is the random deviation from the mean slope
+
+The code used to fit the model is:
+
+lme4::lmer(alcuse~(nhsupZG|schnum),data=in.dat)
+
+
+## Part 2
+```{r q-3-b, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+The variance of the school intercepts is: `r round(var.val.int,2)`
+
+## Part 3
+```{r q-3-c, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+The variance of the slopes by neighborhood support across all schools is: `r round(var.val.slope,2)`
+
+## Part 4
+```{r q-3-d, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The covariation of the intercepts and slopes is: `r round(covar.val, 2)`. This indicates a negative relationship between the average alchohol use within a school and the effect that neighborhood support has within a school. So as the mean neighborhood alcohol use increases the impact of nieghborhood support decreases. 
+
+## Part 5
+```{r q-3-e, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+The proportion of the variance explained by the random effects is: `r round(var.explained,2)`. About 6% of the total variance observed in the outcome can be explained due to the nested nature of the data, as well as differential responses to neighborhood support based school membership.
+
+# Question 4
+## Part 1
+The fitted first level model is:
+$Y_{ij}=\beta_{0} + \beta_{1j}(neighborhoodSupport) + r_{ij}$
+
+Where
+
+$Y_{ij}$ is equal to the predicted alcohol use for an individual
+
+$\beta_{0j}$ is the mean alcohol use for school j
+
+$\beta_{1j}$ is the impact of dropout rates  for school j
+
+$r_{ij}$ is the random deviation for individual i from school j
+
+The second level models includes:
+
+$\beta_{0j}=\gamma_{00} + \gamma_{01}*dropout + u_{0j}$
+
+$\beta_{1j}=\gamma_{10}+\gamma_{11}*dropout + u_{1j}$
+
+where
+
+$\gamma_{00}$ is the  mean intercept across all schools
+
+$\gamma_{01}$mean difference
+
+$u_{0j}$ is a random deviation from the mean intercept
+
+$u_{1j}$ is a random deviation from the mean slope
+
+The code to train the model is: lme4::lmer(alcuse~dropoutZ*nhsupZG+(nhsupZG|schnum),data=in.dat)
+
+## Part 2
+
+The fixed effects include:
+
+```{r q-4-a-1, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The intercept value indicates the average estimated alcohol use is 1.78 across all schools and individuals. The dropout coefficient is being used to model the variance in the random slope and intercept included in the first level model and is of a very small magnitude (-0.03) which reflects it explains a small amount of the variation in the intercepts and slopes from the first level models. The main effect of neighborhood support  reflects average main effect that neighborhood support has when predicting alcohol use across all schools, it suggests that across all schools as neighborhood support increases alcohol use decreasess at a relatively strong rate (-0.37).
+
+The random effects include:
+```{r q-4-a-2, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The total variance explained by the fixed effects model is: `r round(insight::get_variance_fixed(mod.two),3)` which suggests the dropout rate does not explain a noticeable portion of the total variation in alcohol use. This is also reflected in the magnitude of the standardized effect size of: -0.03.
+
+The random effects variance is `r round(insight::get_variance_random(mod.two),3)` and explains and it explains `r round((insight::get_variance_residual(mod.one) - insight::get_variance_residual(mod.two)) / insight::get_variance_residual(mod.one), 2)` percent of the variance, across the entire model. 
+
+
+# Question 5
+```{r q-5-a, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The fixed effects include:
+
+```{r q-5-a-1, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+The intercept reflects the grand mean of alcohol use across all schools. The neighborhood support reflects the mean covariance that the neighborhood support has across all schools. It suggests a similar effect as observed in question 4 where increased neighborhood support relates to lower alcohol use. Finally, the last fixed effect is that of gender, where it appears a gender value equal to 1 decreases alcohol use by .25 on average across all schools.
+
+The random effects include:
+
+```{r q-5-a-2, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+
+The variance-covariance matrix of the random effects is:
+```{r q-5-a-3, echo=FALSE, results='show', message=FALSE, warning=FALSE}
+```
+
+This indicates that the direction of relationship between the mean school alcohol use with both gender and neighborhood support is negative such that as the mean alcohol use increases the strength of the slope for both the neighborhood support and gender effect decreases. Interestingly, there is little relationship between the gender and neighborhood support slopes.
+
+Overall, the variance of the random effects is: `r round(insight::get_variance_random(mod.three), 2)` and it explains `r round((insight::get_variance_residual(mod.one) -  insight::get_variance_residual(mod.three)) / insight::get_variance_residual(mod.one), 2)` percent of the variance, across the entire model. 
