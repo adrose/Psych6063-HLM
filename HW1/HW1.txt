@@ -1,0 +1,13 @@
+THe three approaches are:
+	1. ignore the clustering and analyze data as if there were no group structure in the data <disaggregated>
+		- Leads to severe alpha inflation!
+	2. aggregate data at the group level, obtaining a mean on each predictor vriable and on the DV for each group; the groups are then treated as the unit of analysis <aggregated analysis>
+		-leads to ecological fallacy; generalizations from the group level may not predict the individual level@
+	3. analyze the regression dependent variable on predicors of int at the individual case level, but to include as predictors a set of dummy codes for groups or clusters to identify the group membership <fixed effects approach to clustering>
+		- Treat the group membership as a fixed coefficient --> the issue with this is that we are assuming that all the sampled groups are the entiery of the population we are studying
+		- Obviously the appeal is that it partials out the difference of the group membership on the DV
+The aggregated and disaggregated approaches estimate very different beta coefficients:
+	1. dis == estimates the total regression coefficient of the criterion on the predictor
+	2. agg == estimates the between class regression coefficient 
+	
+
